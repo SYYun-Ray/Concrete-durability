@@ -1,0 +1,1230 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>콘크리트 내구성 – 강도/피복/허용균열폭/배합 · SPA</title>
+  <style>
+    :root {
+      --bg: #f7fafc;
+      --surface: #ffffff;
+      --text: #111827;
+      --muted: #4b5563;
+      --border: #e5e7eb;
+      --shadow: 0 4px 14px rgba(0,0,0,0.08);
+      --primary: #0b5fff;
+      --primary-weak: #e6efff;
+      --chip: #eef2ff;
+      --chip-border: #c7d2fe;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin:0; background:var(--bg); color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Apple Color Emoji, Segoe UI Emoji; }
+    header { background: linear-gradient(90deg, #0b5fff, #2563eb); color:#fff; padding:16px 0; box-shadow: var(--shadow); }
+    .container { max-width:1200px; margin:0 auto; padding:0 24px; }
+    h1 { margin:0; font-size:24px; }
+    h2 { font-size:18px; margin:18px 0 10px; color:#111827; }
+    p.note { color:var(--muted); font-size:13px; }
+
+    /* top nav */
+    .topnav { display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin:16px 0; }
+    .navtab { border:1px solid var(--border); background:#fff; border-radius:14px; padding:14px; box-shadow: var(--shadow); cursor:pointer; text-align:center; font-weight:700; }
+    .navtab[aria-selected="true"] { outline:2px solid var(--primary); }
+    .navdesc { margin-top:6px; color:#4b5563; font-size:12px; font-weight:500; }
+
+    /* cards / tables */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; box-shadow:var(--shadow); }
+    .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .thumb { position:relative; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:#f3f4f6; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .thumb img { width:100%; height:100%; object-fit:cover; }
+    .thumb iframe { width:100%; height:100%; border:0; display:block; }
+    .thumb .overlay { position:absolute; inset:0; background:transparent; border:0; padding:0; margin:0; cursor:pointer; }
+
+    .pillbar, .chips { display:flex; gap:8px; flex-wrap:wrap; }
+    .pill, .chip, .exo { border:1px solid var(--chip-border); background: var(--chip); color:#1f2937; border-radius:999px; padding:8px 14px; cursor:pointer; font-weight:600; }
+    .exo { border-radius:10px; }
+    .active { background:var(--primary) !important; color:#fff !important; border-color: var(--primary) !important; }
+    .exogrid { display:grid; grid-template-columns: repeat(10, minmax(0,1fr)); gap:8px; }
+    .toolbar { display:flex; gap:8px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+    input[type="text"] { border: 1px solid var(--border); background:#fff; padding:10px 12px; border-radius:10px; width:300px; }
+    .btn { background:var(--primary); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; }
+    .btn.secondary { background:#fff; color:#111827; border:1px solid var(--border); }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border-bottom:1px solid var(--border); padding:10px 8px; font-size:13px; vertical-align:top; }
+    th { text-align:left; color:#374151; background:#f9fafb; position:sticky; top:0; }
+    tbody tr:hover td { background:#f9fafb; }
+    .hl { background:#fff7ed; border:1px solid #fed7aa; border-radius:8px; padding:3px 6px; }
+
+    /* Modal */
+    .modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,.5); z-index:50; }
+    .modal.open { display:flex; }
+    .modal-content { width:min(92vw,1100px); height:min(86vh,680px); background:#000; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; }
+    .modal-content img { display:none; width:100%; height:100%; object-fit:contain; background:#000; flex:1 1 auto; }
+    .modal-content iframe { display:none; width:100%; height:100%; border:0; background:#000; flex:1 1 auto; }
+    .modal-footer { padding:8px 12px; background:#111827; color:#e5e7eb; display:flex; justify-content:space-between; align-items:center; }
+
+    /* Panels */
+    [data-panel] { display:none; }
+    [data-panel][data-active="true"] { display:block; }
+  
+/* ---- COVER (피복두께) styles ---- */
+.cover-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:12px;align-items:center}
+.cover-illust img{max-width:70%;height:auto;border-radius:10px;border:1px solid var(--border)}
+.cover-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cover-filters label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.cover-filters input,.cover-filters select{width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--text)}
+.cover-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.cover-chip{background:var(--chip);border:1px solid var(--chip-border);padding:6px 10px;border-radius:999px;font-size:12px;color:#1f2937}
+
+</style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>콘크리트 내구성(한국 기준) – 강도 · 피복두께 · 허용균열폭 · 재료·배합요구</h1>
+      <p class="note">단일 HTML(One-Page) · 상단 4개 카드를 클릭하면 각 섹션으로 전환됩니다.</p>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 16px 0 28px;">
+    <!-- Top navigation (tabs/cards) -->
+    <nav class="topnav" role="tablist" aria-label="Durability Sections">
+      <button class="navtab" role="tab" aria-selected="true" data-target="#strength">강도
+        <div class="navdesc">최소 강도 · (완료)</div>
+      </button>
+      <button class="navtab" role="tab" aria-selected="false" data-target="#cover">피복두께
+        <div class="navdesc">최소 피복 – 필터/표</div>
+      </button>
+      <button class="navtab" role="tab" aria-selected="false" data-target="#crack">허용균열폭
+        <div class="navdesc">w<sub>lim</sub> – (완료)</div>
+      </button>
+      <button class="navtab" role="tab" aria-selected="false" data-target="#materials">재료·배합요구사항
+        <div class="navdesc">W/B 한도 등 – 준비중</div>
+      </button>
+    </nav>
+
+    <!-- Panel: Strength (완료) -->
+    <section id="strength" data-panel data-active="true">
+      <!-- 1) 기준 개요 카드 -->
+      <section class="card">
+        <h2>1) 내구성 관련 한국 설계기준의 구성 · 단계별 참고 기준</h2>
+        <div class="grid4" style="grid-template-columns:1.3fr 1fr 1fr;">
+          <div class="card" style="padding:14px;">
+            <strong>노출환경·노출등급</strong>
+            <p class="note">환경(탄산화·염화물·동결융해 등)과 등급을 정해 설계 입력을 확정.</p>
+            <div class="note">KDS 14 20 40(내구성)</div>
+            <ul style="margin:8px 0 0 18px;">
+              <li>범주 E/EA/EC/EF/ES</li>
+              <li>세부 등급(E0, EA1…)</li>
+              <li>수명·환경조건 반영</li>
+            </ul>
+          </div>
+          <div class="card" style="padding:14px;">
+            <strong>재료·배합·품질</strong>
+            <p class="note">재료 선택·배합·시공 품질관리 조건.</p>
+            <div class="note">KCS 14 20 10</div>
+            <ul style="margin:8px 0 0 18px;">
+              <li>배합·운반·타설·양생</li>
+              <li>환경대응 품질관리</li>
+            </ul>
+          </div>
+          <div class="card" style="padding:14px;">
+            <strong>강도·피복·상세</strong>
+            <p class="note">최소 강도·피복두께·허용균열폭 등.</p>
+            <div class="note">KDS 14 20 40 / 50</div>
+            <ul style="margin:8px 0 0 18px;">
+              <li>최소 압축강도</li>
+              <li>최소 피복두께</li>
+              <li>허용균열폭</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2) Exposure thumbnails -->
+      <section class="card" style="margin-top:14px;">
+        <h2>2) Exposure Class (노출등급) 그림 예시</h2>
+        <div class="grid4" id="exposureThumbs">
+          
+          <figure class="thumb" data-caption="항만" data-embed="iframe">
+            <iframe src="https://gsenc-my.sharepoint.com/personal/syyun_gsenc_com/_layouts/15/embed.aspx?UniqueId=7e430b3d-afc5-4335-889e-e96a9fa7dc22" allowfullscreen title="01_항만"></iframe>
+            <button class="overlay" aria-label="미리보기"></button>
+          </figure>
+
+          <figure class="thumb" data-caption="해상교량" data-embed="iframe">
+            <iframe src="https://gsenc-my.sharepoint.com/personal/syyun_gsenc_com/_layouts/15/embed.aspx?UniqueId=2abc100b-a82d-4e88-9f76-d61e8161605d" allowfullscreen title="02_해상교량"></iframe>
+            <button class="overlay" aria-label="미리보기"></button>
+          </figure>
+
+          <figure class="thumb" data-caption="육상교량" data-embed="iframe">
+            <iframe src="https://gsenc-my.sharepoint.com/personal/syyun_gsenc_com/_layouts/15/embed.aspx?UniqueId=2431df29-387f-42af-bcc9-04b3c5b27cdc" allowfullscreen title="03_육상교량"></iframe>
+            <button class="overlay" aria-label="미리보기"></button>
+          </figure>
+
+          <figure class="thumb" data-caption="도로구조물" data-embed="iframe">
+            <iframe src="https://gsenc-my.sharepoint.com/personal/syyun_gsenc_com/_layouts/15/embed.aspx?UniqueId=3506644e-3214-4468-81bc-f2cb498f3dd1" allowfullscreen title="04_도로구조물"></iframe>
+            <button class="overlay" aria-label="미리보기"></button>
+          </figure>
+        </div>
+      </section>
+
+      <!-- 3) 필터 버튼 (통합) -->
+      <section class="card" style="margin-top:14px;">
+        <h2>3) 필터 버튼</h2>
+        <div class="filters">
+          <div>
+            <div class="note" style="margin-bottom:6px;">KR_Class1</div>
+            <div id="krPills" class="pillbar"></div>
+          </div>
+          <div>
+            <div class="note" style="margin-bottom:6px;">Member</div>
+            <div id="memberChips" class="chips"></div>
+          </div>
+          <div>
+            <div class="note" style="margin-bottom:6px;">세부 등급 (KR_Exposure_Class)</div>
+            <div id="exogrid" class="exogrid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4) 표 -->
+      <section class="card" style="margin-top:14px;">
+        <h2>4) 표</h2>
+        <div class="toolbar">
+          <input id="searchBox" type="text" placeholder="자유검색 (모든 열 대상)" />
+          <button id="resetBtn" class="btn secondary" type="button">필터 초기화</button>
+          <button id="exportBtn" class="btn" type="button">필터 결과 CSV</button>
+        </div>
+        <h3 style="margin:12px 0 6px;">KOR_Class_table_Main</h3>
+        <div id="tableWrap"></div>
+
+        <h3 style="margin:16px 0 6px;">KOR_Guide (선택 상태에 따른 필터)</h3>
+        <div id="guideWrapFiltered"></div>
+
+        <details style="margin-top:16px;">
+          <summary>보조표: KOR_Sulphate_Soil</summary>
+          <div id="soilWrap" style="margin-top:8px;"></div>
+        </details>
+        <details style="margin-top:8px;">
+          <summary>보조표: KOR_Sulphate_Water</summary>
+          <div id="waterWrap" style="margin-top:8px;"></div>
+        </details>
+
+        <p class="note" style="margin-top:10px;">강조 열: <span class="hl">Min_Con_Str</span></p>
+      </section>
+    </section>
+
+    <!-- Panel: Cover (빈 페이지) -->
+    
+<section id="cover" data-panel>
+  <!-- Definition + Illustration -->
+  <section class="card">
+    <h2>피복두께 – 정의 & 개념도</h2>
+    <div class="cover-grid">
+      <div>
+        <p><strong>최소 피복두께</strong>란:</p>
+        <ul style="margin:6px 0 0 18px;">
+          <li><strong>횡철근이 주철근을 감싸는 경우</strong>: 콘크리트 표면 → <em>스터럽·띠철근·나선철근</em>의 <strong>바깥 표면</strong>까지의 최단거리</li>
+          <li><strong>그렇지 않은 경우</strong>: 콘크리트 표면 → <em>가장 외단 주근</em>의 표면까지의 최단거리</li>
+          <li><strong>포스트텐셔닝 프리스트레싱 강재</strong>: 콘크리트 표면 → <em>덕트(duct) 또는 철제 접속구</em>의 표면까지의 최단거리</li>
+        </ul>
+        <p class="note" style="margin-top:6px;">측정은 항상 <strong>최단거리</strong> 기준(곡면·모서리 포함).</p>
+      </div>
+      <div class="cover-illust" style="text-align:center;">
+        <img alt="피복두께 개념도" src="data:image/png;base64,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" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <section class="card" style="margin-top:14px;">
+    <h2>필터</h2>
+    <div class="cover-filters" id="coverFilters"></div>
+    <div class="cover-chips" id="coverChips"></div>
+  </section>
+
+  <!-- Table -->
+  <section class="card" style="margin-top:14px;">
+    <h2>표</h2>
+    <div class="toolbar">
+      <input id="coverSearch" type="text" placeholder="전체 검색 (모든 열)" />
+      <button id="coverReset" class="btn secondary" type="button">초기화</button>
+      <button id="coverExport" class="btn" type="button">CSV 내보내기</button>
+      <span class="note" id="coverCount" style="margin-left:auto;"></span>
+    </div>
+    <div style="overflow:auto; border:1px solid var(--border); border-radius:12px; margin-top:10px;">
+      <table>
+        <thead id="coverHead"></thead>
+        <tbody id="coverBody"></tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+    </section>
+
+    <!-- Panel: Crack width (빈 페이지) -->
+    
+<section id="crack" data-panel>
+  <section class="card">
+    <h2>허용 균열폭 (KDS 14 20 30)</h2>
+    <p class="note">환경조건에 따라 <b>기준값</b>과 <b>k·c<sub>c</sub></b> 중 큰 값을 허용치로 적용합니다. c<sub>c</sub>는 최외단 주철근의 표면과 콘크리트 표면 사이의 <b>최소 피복 두께</b>(mm).</p>
+    <div style="overflow:auto;">
+      <table class="table" style="min-width:720px; border-collapse:collapse; width:100%">
+        <caption>철근콘크리트 구조물의 허용 균열폭 w<sub>a</sub> (강재 부식에 대한 환경조건)</caption>
+        <thead>
+          <tr>
+            <th style="width:20%">강재</th>
+            <th>건조 환경</th>
+            <th>습윤 환경</th>
+            <th>부식성 환경</th>
+            <th>고부식성 환경</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>철근</td>
+            <td>0.4 또는 0.006&nbsp;c<sub>c</sub> <br><span class="note">중 큰 값</span></td>
+            <td>0.3 또는 0.005&nbsp;c<sub>c</sub> <br><span class="note">중 큰 값</span></td>
+            <td>0.3 또는 0.004&nbsp;c<sub>c</sub> <br><span class="note">중 큰 값</span></td>
+            <td>0.3 또는 0.0035&nbsp;c<sub>c</sub> <br><span class="note">중 큰 값</span></td>
+          </tr>
+          <tr>
+            <td>긴장재</td>
+            <td>0.2 또는 0.005&nbsp;c<sub>c</sub> <br><span class="note">중 큰 값</span></td>
+            <td>0.2 또는 0.004&nbsp;c<sub>c</sub> <br><span class="note">중 큰 값</span></td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:14px; border:1px solid var(--border);">
+      <table class="table" style="min-width:560px; border-collapse:collapse; width:100%">
+        <caption>수처리 구조물의 허용 균열폭 w<sub>a</sub></caption>
+        <thead>
+          <tr>
+            <th style="width:34%">구분</th>
+            <th>휨인장균열</th>
+            <th>전 단면 인장균열</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>오염되지 않은 물<span class="note">¹</span></td>
+            <td>0.25</td>
+            <td>0.20</td>
+          </tr>
+          <tr>
+            <td>오염된 액체<span class="note">²</span></td>
+            <td>0.20</td>
+            <td>0.15</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:.5rem">
+        ¹ 예: 음용수(상수도) 시설물 · ² 오염이 매우 심한 경우 발주자와 협의하여 결정
+      </p>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:14px;">
+    <h3 style="margin-bottom:8px;">간단 계산기 (KDS)</h3>
+    <p class="note">환경·강재를 선택하고 필요한 경우 피복두께 c<sub>c</sub>(mm)를 입력하세요.</p>
+
+    <div class="grid2" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div>
+        <label for="cr_type"><b>적용 대상</b></label>
+        <select id="cr_type" style="width:100%; padding:.6rem; border:1px solid var(--border); border-radius:10px;">
+          <option value="rc">일반 구조 (철근/긴장재)</option>
+          <option value="water">수처리 구조물</option>
+        </select>
+      </div>
+      <div id="cr_steelWrap">
+        <label for="cr_steel"><b>강재</b></label>
+        <select id="cr_steel" style="width:100%; padding:.6rem; border:1px solid var(--border); border-radius:10px;">
+          <option value="rebar">철근</option>
+          <option value="tendon">긴장재</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid2" id="cr_envRow" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;">
+      <div>
+        <label for="cr_env"><b>환경조건</b></label>
+        <select id="cr_env" style="width:100%; padding:.6rem; border:1px solid var(--border); border-radius:10px;">
+          <option value="dry">건조</option>
+          <option value="wet">습윤</option>
+          <option value="corrosive">부식성</option>
+          <option value="highcor">고부식성</option>
+        </select>
+      </div>
+      <div id="cr_ccRow">
+        <label for="cr_cc"><b>피복두께 c<sub>c</sub> (mm)</b></label>
+        <input id="cr_cc" type="number" inputmode="decimal" min="0" step="1" placeholder="예: 40" style="width:100%; padding:.6rem; border:1px solid var(--border); border-radius:10px;" />
+        <div class="note" style="margin-top:4px;">c<sub>c</sub>는 최외단 주철근의 표면과 콘크리트 표면 사이의 <b>최소 피복 두께</b> (mm)</div>
+      </div>
+    </div>
+
+    <div class="grid2" id="cr_waterRow" style="display:none; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;">
+      <div>
+        <label for="cr_waterClass"><b>수처리: 유체 구분</b></label>
+        <select id="cr_waterClass" style="width:100%; padding:.6rem; border:1px solid var(--border); border-radius:10px;">
+          <option value="clean">오염되지 않은 물</option>
+          <option value="dirty">오염된 액체</option>
+        </select>
+      </div>
+      <div>
+        <label for="cr_waterMode"><b>균열 유형</b></label>
+        <select id="cr_waterMode" style="width:100%; padding:.6rem; border:1px solid var(--border); border-radius:10px;">
+          <option value="flex">휨인장균열</option>
+          <option value="full">전 단면 인장균열</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="cr_resultBox" style="margin-top:10px; padding:12px; border:1px dashed var(--border); border-radius:12px; background:var(--panel);">
+      <div class="note" id="cr_formula">w<sub>a</sub> = max(기준값, k·c<sub>c</sub>)</div>
+      <div style="margin-top:.35rem">
+        <span style="font-size:1.8rem; font-weight:800;" id="cr_wa">–</span> <span class="note">mm</span>
+      </div>
+      <div class="note" id="cr_hint"></div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:14px;">
+    <h3>참고: ACI · Eurocode 허용균열폭 (요약)</h3>
+    <details open>
+      <summary><b>ACI (미국)</b></summary>
+      <ul>
+        <li><b>ACI 318</b>은 균열폭 한계를 직접 지정하기보다는 철근 응력·간격을 통한 균열제어 절차를 제시.</li>
+        <li><b>ACI 224R</b> 권장값(실무 참고):
+          <ul>
+            <li>건조 실내 등 미노출: 약 <b>0.41&nbsp;mm</b></li>
+            <li>습윤·일반 노출: 약 <b>0.33&nbsp;mm</b></li>
+            <li>제빙염·해수 등 가혹: 약 <b>0.25&nbsp;mm</b> 또는 이하</li>
+            <li>수밀 요구(저수조 등): <b>0.10&nbsp;mm</b> 수준</li>
+          </ul>
+        </li>
+        <li><b>ACI 350</b>(환경/수처리 구조): 누수 제어 목적상 더 엄격한 제한(대체로 0.25&nbsp;mm 이하)을 적용.</li>
+      </ul>
+    </details>
+    <details>
+      <summary><b>Eurocode 2 (EN 1992-1-1)</b></summary>
+      <ul>
+        <li>권장 허용균열폭 <em>w<sub>max</sub></em> 예시(국가부록에 의해 조정 가능):
+          <ul>
+            <li>일반 내구성: 보통 <b>0.3&nbsp;mm</b></li>
+            <li>가혹한 노출(염해·빙해 등): <b>0.2&nbsp;mm</b></li>
+            <li>엄격한 수밀: <b>0.1&nbsp;mm</b></li>
+          </ul>
+        </li>
+        <li>EC2는 하중조합(준영구/빈발 등)과 상세에 따른 계산 절차를 병행하도록 규정.</li>
+      </ul>
+      <p class="note">※ 요약 참고값이며 실제 적용은 해당 국가부록/명세 확인 필요.</p>
+    </details>
+  </section>
+</section>
+
+<script>
+// ----- Crack calc data & logic (scoped) -----
+(function(){
+  const CRACK_KDS = {
+    rc: {
+      rebar: {
+        dry:       { base: 0.4, k: 0.006 },
+        wet:       { base: 0.3, k: 0.005 },
+        corrosive: { base: 0.3, k: 0.004 },
+        highcor:   { base: 0.3, k: 0.0035 }
+      },
+      tendon: {
+        dry: { base: 0.2, k: 0.005 },
+        wet: { base: 0.2, k: 0.004 },
+        corrosive: null,
+        highcor: null
+      }
+    },
+    water: {
+      clean: { flex: 0.25, full: 0.20 },
+      dirty: { flex: 0.20, full: 0.15 }
+    }
+  };
+
+  const typeSel = document.getElementById('cr_type');
+  const steelSel = document.getElementById('cr_steel');
+  const envSel = document.getElementById('cr_env');
+  const ccInput = document.getElementById('cr_cc');
+
+  const steelWrap = document.getElementById('cr_steelWrap');
+  const envRow = document.getElementById('cr_envRow');
+  const ccRow = document.getElementById('cr_ccRow');
+  const waterRow = document.getElementById('cr_waterRow');
+  const waterClassSel = document.getElementById('cr_waterClass');
+  const waterModeSel = document.getElementById('cr_waterMode');
+
+  const waOut = document.getElementById('cr_wa');
+  const hint = document.getElementById('cr_hint');
+  const formula = document.getElementById('cr_formula');
+
+  function format(num){
+    if (num == null || isNaN(num)) return '–';
+    return (Math.round(num*1000)/1000).toFixed(3);
+  }
+
+  function updateVisibility(){
+    const mode = typeSel.value;
+    if (mode === 'rc'){
+      steelWrap.style.display = '';
+      envRow.style.display = 'grid';
+      ccRow.style.display = '';
+      waterRow.style.display = 'none';
+      formula.innerHTML = 'w<sub>a</sub> = max(기준값, k·c<sub>c</sub>)';
+    } else {
+      steelWrap.style.display = 'none';
+      envRow.style.display = 'none';
+      ccRow.style.display = 'none';
+      waterRow.style.display = 'grid';
+      formula.textContent = '수처리 구조: 표에 제시된 고정 허용값';
+    }
+  }
+
+  function envLabel(key){ return ({dry:'건조', wet:'습윤', corrosive:'부식성', highcor:'고부식성'})[key] || key; }
+
+  function compute(){
+    updateVisibility();
+    hint.textContent = '';
+    let wa = null;
+
+    if (typeSel.value === 'rc'){
+      const steel = steelSel.value;
+      const env = envSel.value;
+      const rule = CRACK_KDS.rc[steel][env];
+
+      if (!rule){
+        waOut.textContent = '–';
+        hint.innerHTML = '선택된 조합(긴장재 · '+envLabel(env)+')은 표에 값이 제시되지 않습니다.';
+        return;
+      }
+
+      const cc = parseFloat(ccInput.value);
+      if (isNaN(cc) || cc <= 0){
+        waOut.textContent = '–';
+        hint.textContent = '피복두께 c_c 를 입력하면 계산됩니다.';
+        return;
+      }
+
+      const viaK = rule.k * cc;
+      wa = Math.max(rule.base, viaK);
+      waOut.textContent = format(wa);
+      hint.innerHTML = '기준값 '+format(rule.base)+' mm, k·c_c = '+format(viaK)+' mm → <b>중 큰 값</b> 적용';
+    } else {
+      const cls = waterClassSel.value;
+      const mode = waterModeSel.value;
+      wa = CRACK_KDS.water[cls][mode];
+      waOut.textContent = format(wa);
+      hint.textContent = (cls==='clean'?'오염되지 않은 물':'오염된 액체')+' · '+(mode==='flex'?'휨인장균열':'전 단면 인장균열');
+    }
+  }
+
+  [typeSel, steelSel, envSel, ccInput, waterClassSel, waterModeSel].forEach(el=>{
+    el.addEventListener('input', compute);
+    el.addEventListener('change', compute);
+  });
+  compute();
+})();
+</script>
+<!-- Panel: Materials (빈 페이지) -->
+    <section id="materials" data-panel>
+  <section class="card">
+    <h2>재료·배합요구사항</h2>
+    <p class="note">아래 표는 첨부된 page.tsx의 MATERIAL_REQUIREMENTS 표를 SPA에 맞게 변환·삽입한 것입니다.</p>
+    <div id="materialsWrap"></div>
+    <div class="note" style="margin-top:10px;">
+      주 1) 경량골재 콘크리트에는 적용하지 않음. 석회, 연구성과 등에 의하여 확장이 있을 때는 5% 더한 값으로 할 수 있음.<br/>
+      2) KS F 2715 적용, 재령 28일～42일 사이
+    </div>
+<details class="collapsible" style="margin-top:16px;">
+  <summary style="cursor:pointer; list-style:none; font-weight:700; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--panel);">
+    보조표: KCS 14 20 44의 표 2.2-1 — 내구성으로 정해지는 최소 단위 결합재량(kg/m³)
+    <span class="note" style="margin-left:8px; font-weight:400;">(클릭하여 열기/닫기)</span>
+  </summary>
+  <div style="padding:12px 2px 0 2px;"><div class="card" style="margin-top:8px; border:none;">
+  <div style="overflow:auto; border:1px solid var(--border); border-radius:10px;">
+    <table>
+      <caption style="caption-side:top; text-align:left; font-weight:600; padding:8px">
+        표 2.2-1 내구성으로 정해지는 최소 단위 결합재량(kg/m³) (KCS 14 20 44)
+      </caption>
+      <thead>
+        <tr>
+          <th rowspan="2" style="min-width:260px; position:sticky; left:0; background:#f9fafb;">환경구분</th>
+          <th colspan="3" style="background:#f3f4f6;">굵은 골재의 최대 치수 (mm)</th>
+        </tr>
+        <tr>
+          <th>20</th>
+          <th>25</th>
+          <th>40</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="position:sticky; left:0; background:#fff;">
+            물보라 지역, 간만대 및 해양대기중<br/>
+            <span class="note">(노출등급 ES1, ES4)</span>
+          </td>
+          <td class="text-center">340</td>
+          <td class="text-center">330</td>
+          <td class="text-center">300</td>
+        </tr>
+        <tr>
+          <td style="position:sticky; left:0; background:#fff;">
+            해중<br/>
+            <span class="note">(노출등급 ES3)</span>
+          </td>
+          <td class="text-center">310</td>
+          <td class="text-center">300</td>
+          <td class="text-center">280</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note" style="margin-top:8px;">
+    주 1) KCS 14 20 10(1.9.2)에 규정된 노출등급 참조
+  </div>
+</div></div>
+</details>
+<details class="collapsible" style="margin-top:16px;">
+  <summary style="cursor:pointer; list-style:none; font-weight:700; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--panel);">
+    보조표: KCS 14 20 10의 표 1.9-4 — 노출범주 EA에 따른 결합재 종류
+    <span class="note" style="margin-left:8px; font-weight:400;">(클릭하여 열기/닫기)</span>
+  </summary>
+  <div style="padding:12px 2px 0 2px;">
+    <div style="overflow:auto; border:1px solid var(--border); border-radius:10px;">
+      <table>
+        <thead>
+          <tr>
+            <th style="min-width:120px; position:sticky; left:0; background:#f9fafb;">노출등급</th>
+            <th style="min-width:520px;">결합재의 종류¹⁾</th>
+            <th style="min-width:180px;">염화칼슘 혼화제 사용유무</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="position:sticky; left:0; background:#fff;">EA1</td>
+            <td>
+              <ul style="padding-left:18px; margin:0;">
+                <li>보통 포틀랜드 시멘트(1종)(KS L 5201) + 포졸란 혹은 슬래그</li>
+                <li>중용열 포틀랜드 시멘트(2종)(KS L 5201)²⁾³⁾</li>
+                <li>고로 슬래그 시멘트(KS L 5210)</li>
+                <li>플라이 애시 시멘트(KS L 5211)</li>
+              </ul>
+            </td>
+            <td class="text-center">제한 없음</td>
+          </tr>
+          <tr>
+            <td style="position:sticky; left:0; background:#fff;">EA2</td>
+            <td>
+              <ul style="padding-left:18px; margin:0;">
+                <li>내황산염 포틀랜드 시멘트(5종)(KS L 5201)³⁾</li>
+                <li>고로 슬래그 시멘트(KS L 5210) + 플라이 애시</li>
+              </ul>
+            </td>
+            <td class="text-center">허용하지 않음</td>
+          </tr>
+          <tr>
+            <td style="position:sticky; left:0; background:#fff;">EA3</td>
+            <td>
+              <ul style="padding-left:18px; margin:0;">
+                <li>내황산염 포틀랜드 시멘트(5종)(KS L 5201) + 포졸란 또는 슬래그⁴⁾</li>
+              </ul>
+            </td>
+            <td class="text-center">허용하지 않음</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note" style="margin-top:8px;">
+      1) ASTM C 1012에 따라 황산염 저항성 시험을 시행하여 최대 팽창 기준을 만족하는 경우에는 결합재 조합과 다른 조합을 사용할 수 있다.<br/>
+      2) 해수에 노출되는 경우에 물-결합재비가 0.40 이하이면 C<sub>3</sub>A 함량이 10%까지인 1종 또는 3종 등 다른 종류의 시멘트를 사용할 수 있다.<br/>
+      3) EA1, EA2에 대해서는 1종이나 3종을 허용할 수 있다. 단, EA1은 C<sub>3</sub>A 함량이 8% 미만인 경우에 한해 허용한다.<br/>
+      4) 5종 시멘트와 함께 사용할 경우에 황산염에 대한 저항을 개선한 실적이 있거나 실험에 의해 증명된 포졸란 또는 슬래그.
+    </div>
+  </div>
+</details>
+<details class="collapsible" style="margin-top:16px;">
+  <summary style="cursor:pointer; list-style:none; font-weight:700; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--panel);">
+    보조표: KCS 14 20 10의 표 2.2-6 — 공기연행콘크리트 공기량의 표준값
+    <span class="note" style="margin-left:8px; font-weight:400;">(클릭하여 열기/닫기)</span>
+  </summary>
+  <div style="padding:12px 2px 0 2px;">
+    <div style="overflow:auto; border:1px solid var(--border); border-radius:10px;">
+      <table>
+        <thead>
+          <tr>
+            <th rowspan="2" style="min-width:260px; position:sticky; left:0; background:#f9fafb;">굵은 골재의 최대 치수 (mm)</th>
+            <th colspan="2" style="background:#f3f4f6;">공기량(%)</th>
+          </tr>
+          <tr>
+            <th>심한 노출¹⁾</th>
+            <th>일반 노출²⁾</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="position:sticky; left:0; background:#fff;">10</td><td class="text-center">7.5</td><td class="text-center">6.0</td></tr>
+          <tr><td style="position:sticky; left:0; background:#fff;">15</td><td class="text-center">7.0</td><td class="text-center">5.5</td></tr>
+          <tr><td style="position:sticky; left:0; background:#fff;">20</td><td class="text-center">6.0</td><td class="text-center">5.0</td></tr>
+          <tr><td style="position:sticky; left:0; background:#fff;">25</td><td class="text-center">6.0</td><td class="text-center">4.5</td></tr>
+          <tr><td style="position:sticky; left:0; background:#fff;">40</td><td class="text-center">5.5</td><td class="text-center">4.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note" style="margin-top:8px;">
+      1) 노출등급 EF2, EF3, EF4<br/>
+      2) 노출등급 EF1
+    </div>
+  </div>
+</details>
+<details class="collapsible" style="margin-top:16px;">
+  <summary style="cursor:pointer; list-style:none; font-weight:700; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--panel);">
+    보조표: KCS 14 20 10의 표 2.2-7 — 제빙화학제¹⁾에 노출된 콘크리트 최대 혼화재 비율
+    <span class="note" style="margin-left:8px; font-weight:400;">(클릭하여 열기/닫기)</span>
+  </summary>
+  <div style="padding:12px 2px 0 2px;">
+    <div style="overflow:auto; border:1px solid var(--border); border-radius:10px;">
+      <table>
+        <thead>
+          <tr>
+            <th style="min-width:520px; position:sticky; left:0; background:#f9fafb;">혼화재의 종류</th>
+            <th style="min-width:240px;">시멘트와 혼화재 전체에 대한 혼화재의 질량 백분율(%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="position:sticky; left:0; background:#fff;">KS L 5405에 따르는 플라이 애시 또는 기타 포졸란</td>
+            <td class="text-center">25</td>
+          </tr>
+          <tr>
+            <td style="position:sticky; left:0; background:#fff;">KS F 2563에 따르는 고로 슬래그 미분말</td>
+            <td class="text-center">50</td>
+          </tr>
+          <tr>
+            <td style="position:sticky; left:0; background:#fff;">실리카 흄</td>
+            <td class="text-center">10</td>
+          </tr>
+          <tr>
+            <td style="position:sticky; left:0; background:#fff;">플라이 애시 또는 기타 포졸란, 고로 슬래그 미분말 및 실리카 흄의 합</td>
+            <td class="text-center">50²⁾</td>
+          </tr>
+          <tr>
+            <td style="position:sticky; left:0; background:#fff;">플라이 애시 또는 기타 포졸란과 실리카 흄의 합</td>
+            <td class="text-center">35²⁾</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note" style="margin-top:8px;">
+      1) 노출등급 EF4에 해당함.<br/>
+      2) 플라이 애시 또는 기타 포졸란의 합은 25% 이하, 실리카 흄은 10% 이하이어야 한다.
+    </div>
+  </div>
+</details>
+  </section>
+</section>
+  </main>
+
+  <!-- Modal for image/iframe preview -->
+  <div class="modal" id="imgModal" aria-modal="true">
+    <div class="modal-content">
+      <img id="modalImg" alt="preview" />
+      <iframe id="modalFrame" allowfullscreen></iframe>
+      <div class="modal-footer">
+        <span id="modalCaption"></span>
+        <button class="btn secondary" id="closeModal" type="button">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- SPA routing (tabs) ----------
+    const tabs = Array.from(document.querySelectorAll('.navtab'));
+    const panels = Array.from(document.querySelectorAll('[data-panel]'));
+    function activate(hash){
+      const id = (hash || '#strength');
+      tabs.forEach(btn=>{ btn.setAttribute('aria-selected', btn.dataset.target === id ? 'true' : 'false'); });
+      panels.forEach(p=>{ p.dataset.active = ('#'+p.id) === id ? 'true' : 'false'; });
+    }
+    tabs.forEach(btn=> btn.addEventListener('click', ()=>{ location.hash = btn.dataset.target; }));
+    window.addEventListener('hashchange', ()=> activate(location.hash));
+    activate(location.hash);
+
+    // ---------- Data ----------
+    const DATA = {"KOR_Class_table_Main": [{"Key_A": "A1", "KR_Class1": "E", "KR_Class2": "일반", "KR_Exposure_Class": "E0", "Min_Con_Str": 21, "Considertations": "물리적, 화학적 작용에 의한 콘크리트 손상의 우려가 없는 경우\n철근이나 내부 금속의 부식 위험이 없는 경우", "Description": "공기 중 습도가 매우 낮은 건물 내부의 콘크리트", "Remarks": null, "Member": ["건물내부"], "Exposure_Condition": ["항상 습도가 낮게 유지(건조실 등)"]}, {"Key_A": "A2", "KR_Class1": "EC", "KR_Class2": "탄산화", "KR_Exposure_Class": "EC1", "Min_Con_Str": 21, "Considertations": "건조하거나 수분으로부터 보호되는 또는 영구적으로 습윤한 콘크리트", "Description": "공기 중 습도가 낮은 건물 내부의 콘크리트\n물에 계속 침지 되어 있는 콘크리트", "Remarks": null, "Member": ["건물내부"], "Exposure_Condition": ["건조"]}, {"Key_A": "A3", "KR_Class1": "EC", "KR_Class2": "탄산화", "KR_Exposure_Class": "EC2", "Min_Con_Str": 24, "Considertations": "습윤하고 드물게 건조되는 콘크리트로 탄산화의 위험이 보통인 경우", "Description": "장기간 물과 접하는 콘크리트 표면\n외기에 노출되는 기초", "Remarks": null, "Member": ["건물내부", "교각", "기초", "외부에 노출된 슬래브, 옥상", "주탑 외부 기둥(필로티 포함) 외벽"], "Exposure_Condition": ["습윤", "외기 노출(습윤)", "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "흙에 묻힌 부분", "흙에 묻힌 부분, 염화물을 포함된 지하수에 노출", "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출"]}, {"Key_A": "A4", "KR_Class1": "EC", "KR_Class2": "탄산화", "KR_Exposure_Class": "EC3", "Min_Con_Str": 27, "Considertations": "보통 정도의 습도에 노출되는 콘크리트로 탄산화 위험이 비교적 높은  경우", "Description": "공기 중 습도가 보통 이상으로 높은 건물 내부의 콘크리트\n비를 맞지 않는 외부 콘크리트", "Remarks": "중공 구조물의 내부는 노출등급 EC3로 간주할 수 있다. 다만, 외부로부터 물이 침투하거나 노출되어 영향을 받을 수 있는 표면은 EC4로 간주하여야 한다.", "Member": ["교각", "기초", "외부에 노출된 슬래브, 옥상", "주탑 외부 기둥(필로티 포함) 외벽"], "Exposure_Condition": ["바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "외기 노출(건습반복)", "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중"]}, {"Key_A": "A5", "KR_Class1": "EC", "KR_Class2": "탄산화", "KR_Exposure_Class": "EC4", "Min_Con_Str": 30, "Considertations": "건습이 반복되는 콘크리트로 매우 높은 탄산화 위험에 노출되는 경우", "Description": "EC2 등급에 해당하지 않고, 물과 접하는 콘크리트\n(예를 들어 비를 맞는 콘크리트 외벽, 난간 등)", "Remarks": "비를 맞는 외부 콘크리트라 하더라도 규정에 따라 방수 처리된 표면은 노출등급 EC3로 간주할 수 있다.", "Member": ["교각", "기초", "외부에 노출된 슬래브, 옥상", "주탑 외부 기둥(필로티 포함) 외벽"], "Exposure_Condition": ["바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "외기 노출(건습반복)", "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중"]}, {"Key_A": "A6", "KR_Class1": "ES", "KR_Class2": "해양환경, 제빙화학제 등 염화물", "KR_Exposure_Class": "ES1", "Min_Con_Str": 30, "Considertations": "보통 정도의 습도에서 대기 중의 염화물에 노출되지만 해수 또는 염화물을 함유한 물에 직접 접하지 않는 콘크리트", "Description": "해안가 또는 해안 근처에 있는 구조물\n도로 주변에 위치하여 공기중의 제빙화학제에 노출되는 콘크리트", "Remarks": "비래염분의 영향을 받는 콘크리트로 해양환경의 경우 해안가로부터 거리에 따른 비래염분량은 지역마다 큰 차이가 있으므로 측정결과 등을 바탕으로 한계영향 거리를 정해야 한다. 또한 공기 중의 제빙화학제에 영향을 받는 거리도 지역에 따라 편차가 크게 나타나므로 기존 구조물의 염화물 측정결과 등으로부터 한계 영향 거리를 정하는 것이 바람직하다.", "Member": ["교각", "기초", "외부에 노출된 슬래브, 옥상", "주탑 외부 기둥(필로티 포함) 외벽", "항만"], "Exposure_Condition": ["비래염분 영역", "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "해상대기중"]}, {"Key_A": "A7", "KR_Class1": "ES", "KR_Class2": "해양환경, 제빙화학제 등 염화물", "KR_Exposure_Class": "ES2", "Min_Con_Str": 30, "Considertations": "습윤하고 드물게 건조되며 염화물에 노출되는 콘크리트", "Description": "습윤하고 드물게 건조되며 염화물에 노출되는 콘크리트", "Remarks": "수영장\n염화물을 함유한 공업용수에 노출되는 콘크리트", "Member": ["교각", "기초", "주탑 외부 기둥(필로티 포함) 외벽"], "Exposure_Condition": ["흙에 묻힌 부분, 염화물을 포함된 지하수에 노출"]}, {"Key_A": "A8", "KR_Class1": "ES", "KR_Class2": "해양환경, 제빙화학제 등 염화물", "KR_Exposure_Class": "ES3", "Min_Con_Str": 35, "Considertations": "항상 해수에 침지되는 콘크리트", "Description": "항상 해수에 침지되는 콘크리트", "Remarks": "해상 교각의 해수 중에 침지되는 부분", "Member": ["교각", "기초", "주탑 외부 기둥(필로티 포함) 외벽", "항만"], "Exposure_Condition": ["해수에 항상 침지되는 콘크리트"]}, {"Key_A": "A9", "KR_Class1": "ES", "KR_Class2": "해양환경, 제빙화학제 등 염화물", "KR_Exposure_Class": "ES4", "Min_Con_Str": 35, "Considertations": "건습이 반복되면서 해수 또는 염화물에 노출되는 콘크리트", "Description": "해양 환경의 물보라 지역(비말대) 및 간만대에 위치한 콘크리트\n염화물을 함유한 물보라에 직접 노출되는 교량 부위\n도로 포장\n주차장", "Remarks": "(교량) 차도로부터수평방향 10m, 수직방향 5m 이내에 있는 모든 콘크리트 노출면은 제빙화학제에 직접 노출되는 것으로 간주해야 한다. 또한 도로로부터 배출되는 물에 노출되기 쉬운 신축이음(expansion joints) 아래에 있는 교각 상부도 제빙화학제에 직접 노출되는 것으로 간주해야 한다.\n(주차장) 염화물이 포함된 물에 노출되는 주차장의 바닥, 벽체, 기둥 등에 적용한다.", "Member": ["교각", "교량 바닥판", "기초", "주차장 바닥", "주탑 외부 기둥(필로티 포함) 외벽", "항만"], "Exposure_Condition": ["바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "조건없음"]}, {"Key_A": "A10", "KR_Class1": "EF", "KR_Class2": "동결융해", "KR_Exposure_Class": "EF1", "Min_Con_Str": 24, "Considertations": "간혹 수분과 접촉하나 염화물에 노출되지 않고 동결융해의 반복작용에 노출되는 콘크리트", "Description": "비와 동결에 노출되는 수직 콘크리트 표면", "Remarks": null, "Member": ["교각", "기초", "무근콘크리트_수직면", "무근콘크리트_수평면", "외부에 노출된 슬래브, 옥상", "주탑 외부 기둥(필로티 포함) 외벽"], "Exposure_Condition": ["외기 노출(건습반복)", "외기 노출(습윤)"]}, {"Key_A": "A11", "KR_Class1": "EF", "KR_Class2": "동결융해", "KR_Exposure_Class": "EF2", "Min_Con_Str": 27, "Considertations": "간혹 수분과 접촉하고 염화물에 노출되며 동결융해의 반복작용에 노출되는 콘크리트", "Description": "공기 중 제빙화학제와 동결에 노출되는 도로구조물의 수직 콘크리트 표면", "Remarks": null, "Member": ["교각", "교량 바닥판", "기초", "무근콘크리트_수직면", "무근콘크리트_수평면", "외부에 노출된 슬래브, 옥상", "주차장 바닥", "주탑 외부 기둥(필로티 포함) 외벽", "항만"], "Exposure_Condition": ["비래염분 영역", "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "조건없음"]}, {"Key_A": "A12", "KR_Class1": "EF", "KR_Class2": "동결융해", "KR_Exposure_Class": "EF3", "Min_Con_Str": 30, "Considertations": "지속적으로 수분과 접촉하나 염화물에 노출되지 않고 동결융해의 반복작용에 노출되는 콘크리트", "Description": "비와 동결에 노출되는 수평 콘크리트 표면", "Remarks": null, "Member": ["무근콘크리트_수평면", "외부에 노출된 슬래브, 옥상"], "Exposure_Condition": ["외기 노출(건습반복)", "외기 노출(습윤)"]}, {"Key_A": "A13", "KR_Class1": "EF", "KR_Class2": "동결융해", "KR_Exposure_Class": "EF4", "Min_Con_Str": 30, "Considertations": "지속적으로 수분과 접촉하고 염화물에 노출되며 동결융해의 반복작용에 노출되는 콘크리트", "Description": "제빙화학제에 노출되는 도로와 교량 바닥판\n제빙화학제가 포함된 물과 동결에 노출되는 콘크리트 표면\n동결에 노출되는 물보라 지역(비말대) 및 간만대에 위치한 해양 콘크리트", "Remarks": null, "Member": ["교각", "교량 바닥판", "기초", "무근콘크리트", "무근콘크리트_수평면", "외부에 노출된 슬래브, 옥상", "주차장 바닥", "주탑 외부 기둥(필로티 포함) 외벽", "항만"], "Exposure_Condition": ["바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "조건없음"]}, {"Key_A": "A14", "KR_Class1": "EA", "KR_Class2": "황산염", "KR_Exposure_Class": "EA1", "Min_Con_Str": 27, "Considertations": "보통 수준의 황산염이온에 노출되는 콘크리트(표 4.1-2)", "Description": "토양과 지하수에 노출되는 콘크리트\n해수에 노출되는 콘크리트", "Remarks": null, "Member": ["교각", "기초", "무근콘크리트", "주탑 외부 기둥(필로티 포함) 외벽", "항만"], "Exposure_Condition": ["바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "해수에 항상 침지되는 콘크리트", "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출"]}, {"Key_A": "A15", "KR_Class1": "EA", "KR_Class2": "황산염", "KR_Exposure_Class": "EA2", "Min_Con_Str": 30, "Considertations": "유해한 수준의 황산염이온에 노출되는 콘크리트(표 4.1-2)", "Description": "토양과 지하수에 노출되는 콘크리트", "Remarks": null, "Member": ["교각", "기초", "주탑 외부 기둥(필로티 포함) 외벽"], "Exposure_Condition": ["흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출"]}, {"Key_A": "A16", "KR_Class1": "EA", "KR_Class2": "황산염", "KR_Exposure_Class": "EA3", "Min_Con_Str": 30, "Considertations": "매우 유해한 수준의 황산염이온에 노출되는 콘크리트(표 4.1-2)", "Description": "토양과 지하수에 노출되는 콘크리트\n하수, 오·폐수에 노출되는 콘크리트", "Remarks": null, "Member": ["교각", "기초", "주탑 외부 기둥(필로티 포함) 외벽"], "Exposure_Condition": ["흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출"]}], "KOR_Sulphate_Soil": [{"Key_B_황산": "B1", "KR_Exposure_Class": "EA1", "Min": 0.001, "Max": 0.002, "Unit": "%", "비고": "토양내의 수용성 황산염", "측정조건": "토양 질량에 대한 비로 KS I ISO 11048에 따라 측정하여야 한다."}, {"Key_B_황산": "B2", "KR_Exposure_Class": "EA2", "Min": 0.002, "Max": 0.02, "Unit": "%", "비고": "토양내의 수용성 황산염", "측정조건": "토양 질량에 대한 비로 KS I ISO 11048에 따라 측정하여야 한다."}, {"Key_B_황산": "B3", "KR_Exposure_Class": "EA3", "Min": 0.02, "Max": NaN, "Unit": "%", "비고": "토양내의 수용성 황산염", "측정조건": "토양 질량에 대한 비로 KS I ISO 11048에 따라 측정하여야 한다."}], "KOR_Sulphate_Water": [{"Key_C_황산": "C1", "KR_Exposure_Class": "EA1", "Min": 150, "Max": 1500.0, "Unit": "ppm", "비고": "물속에 용해된 황산염", "측정조건": "수용액에 용해된 농도로 ASTM D516 또는 ASTM D4130에 따라 측정하여야 한다."}, {"Key_C_황산": "C2", "KR_Exposure_Class": "EA2", "Min": 1500, "Max": 10000.0, "Unit": "ppm", "비고": "물속에 용해된 황산염", "측정조건": "수용액에 용해된 농도로 ASTM D516 또는 ASTM D4130에 따라 측정하여야 한다."}, {"Key_C_황산": "C3", "KR_Exposure_Class": "EA3", "Min": 10000, "Max": NaN, "Unit": "ppm", "비고": "물속에 용해된 황산염", "측정조건": "수용액에 용해된 농도로 ASTM D516 또는 ASTM D4130에 따라 측정하여야 한다."}], "KOR_Guide": [{"Key_E_Guide": 1, "Member": "기초", "Exposure_Condition": "흙에 묻힌 부분", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 2, "Member": "교각", "Exposure_Condition": "흙에 묻힌 부분", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 3, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "흙에 묻힌 부분", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 4, "Member": "기초", "Exposure_Condition": "흙에 묻힌 부분, 염화물을 포함된 지하수에 노출", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 5, "Member": "교각", "Exposure_Condition": "흙에 묻힌 부분, 염화물을 포함된 지하수에 노출", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 6, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "흙에 묻힌 부분, 염화물을 포함된 지하수에 노출", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 7, "Member": "기초", "Exposure_Condition": "흙에 묻힌 부분, 염화물을 포함된 지하수에 노출", "KR_Exposure_Class": "ES2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 8, "Member": "교각", "Exposure_Condition": "흙에 묻힌 부분, 염화물을 포함된 지하수에 노출", "KR_Exposure_Class": "ES2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 9, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "흙에 묻힌 부분, 염화물을 포함된 지하수에 노출", "KR_Exposure_Class": "ES2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 10, "Member": "기초", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 11, "Member": "교각", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 12, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 13, "Member": "기초", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EA1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 14, "Member": "교각", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EA1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 15, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EA1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 16, "Member": "기초", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EA2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 17, "Member": "교각", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EA2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 18, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EA2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 19, "Member": "기초", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EA3", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 20, "Member": "교각", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EA3", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 21, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "흙에 묻힌 부분, 황산염을 포함한 흙 또는 지하수에 노출", "KR_Exposure_Class": "EA3", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 22, "Member": "기초", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 23, "Member": "교각", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 24, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 25, "Member": "기초", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EF1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 26, "Member": "교각", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EF1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 27, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EF1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 28, "Member": "기초", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 29, "Member": "교각", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 30, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 31, "Member": "기초", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "ES1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 32, "Member": "교각", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "ES1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 33, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "ES1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 34, "Member": "기초", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 35, "Member": "교각", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 36, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 37, "Member": "기초", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 38, "Member": "교각", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 39, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 40, "Member": "기초", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 41, "Member": "교각", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 42, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 43, "Member": "기초", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EF1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 44, "Member": "교각", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EF1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 45, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EF1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 46, "Member": "기초", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 47, "Member": "교각", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 48, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 49, "Member": "기초", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 50, "Member": "교각", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 51, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 52, "Member": "기초", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "ES1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 53, "Member": "교각", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "ES1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 54, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "ES1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 55, "Member": "기초", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 56, "Member": "교각", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 57, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 58, "Member": "기초", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 59, "Member": "교각", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 60, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 61, "Member": "기초", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 62, "Member": "교각", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 63, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 64, "Member": "기초", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "ES4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 65, "Member": "교각", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "ES4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 66, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "ES4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 67, "Member": "기초", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EF4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 68, "Member": "교각", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EF4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 69, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EF4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 70, "Member": "기초", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EA1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 71, "Member": "교각", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EA1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 72, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EA1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 73, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 74, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EF3", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 75, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EF1", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 76, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 77, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "ES1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 78, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 79, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 80, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 81, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 82, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EF3", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 83, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EF1", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 84, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 85, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EC3", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 86, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 87, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 88, "Member": "외부에 노출된 슬래브, 옥상", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "ES1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 89, "Member": "교량 바닥판", "Exposure_Condition": "조건없음", "KR_Exposure_Class": "ES4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 90, "Member": "교량 바닥판", "Exposure_Condition": "조건없음", "KR_Exposure_Class": "EF4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 91, "Member": "교량 바닥판", "Exposure_Condition": "조건없음", "KR_Exposure_Class": "EF2", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 92, "Member": "주차장 바닥", "Exposure_Condition": "조건없음", "KR_Exposure_Class": "ES4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 93, "Member": "주차장 바닥", "Exposure_Condition": "조건없음", "KR_Exposure_Class": "EF4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 94, "Member": "주차장 바닥", "Exposure_Condition": "조건없음", "KR_Exposure_Class": "EF2", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 95, "Member": "건물내부", "Exposure_Condition": "습윤", "KR_Exposure_Class": "EC2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 96, "Member": "건물내부", "Exposure_Condition": "건조", "KR_Exposure_Class": "EC1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 97, "Member": "건물내부", "Exposure_Condition": "항상 습도가 낮게 유지(건조실 등)", "KR_Exposure_Class": "E0", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 98, "Member": "무근콘크리트", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EF4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 99, "Member": "무근콘크리트", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EA1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 100, "Member": "무근콘크리트_수직면", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EF1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 101, "Member": "무근콘크리트_수직면", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EF1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 102, "Member": "무근콘크리트_수직면", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 103, "Member": "무근콘크리트_수직면", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 104, "Member": "무근콘크리트_수평면", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EF3", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 105, "Member": "무근콘크리트_수평면", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EF3", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 106, "Member": "무근콘크리트_수평면", "Exposure_Condition": "외기 노출(습윤)", "KR_Exposure_Class": "EF1", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 107, "Member": "무근콘크리트_수평면", "Exposure_Condition": "외기 노출(건습반복)", "KR_Exposure_Class": "EF1", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 108, "Member": "무근콘크리트_수평면", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 109, "Member": "무근콘크리트_수평면", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF4", "방수여부": "No", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 110, "Member": "무근콘크리트_수평면", "Exposure_Condition": "외기 노출(습윤), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 111, "Member": "무근콘크리트_수평면", "Exposure_Condition": "외기 노출(건습반복), 대기중 제설염 영향지역 또는 해안 대기중", "KR_Exposure_Class": "EF2", "방수여부": "Yes", "방수조건영향여부": "영향 있음"}, {"Key_E_Guide": 112, "Member": "기초", "Exposure_Condition": "해수에 항상 침지되는 콘크리트", "KR_Exposure_Class": "ES3", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 113, "Member": "교각", "Exposure_Condition": "해수에 항상 침지되는 콘크리트", "KR_Exposure_Class": "ES3", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 114, "Member": "주탑 외부 기둥(필로티 포함) 외벽", "Exposure_Condition": "해수에 항상 침지되는 콘크리트", "KR_Exposure_Class": "ES3", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 115, "Member": "항만", "Exposure_Condition": "해수에 항상 침지되는 콘크리트", "KR_Exposure_Class": "ES3", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 116, "Member": "항만", "Exposure_Condition": "해수에 항상 침지되는 콘크리트", "KR_Exposure_Class": "EA1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 117, "Member": "항만", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "ES4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 118, "Member": "항만", "Exposure_Condition": "바닷물에 노출(비말대, 간만대) 또는 제설염이 녹은 물에 직접 노출", "KR_Exposure_Class": "EF4", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 119, "Member": "항만", "Exposure_Condition": "비래염분 영역", "KR_Exposure_Class": "ES1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 120, "Member": "항만", "Exposure_Condition": "비래염분 영역", "KR_Exposure_Class": "EF2", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}, {"Key_E_Guide": 121, "Member": "항만", "Exposure_Condition": "해상대기중", "KR_Exposure_Class": "ES1", "방수여부": "해당 없음", "방수조건영향여부": "영향 없음"}]};
+    const MAIN = DATA["KOR_Class_table_Main"] || [];
+    const SOIL = DATA["KOR_Sulphate_Soil"] || [];
+    const WATER = DATA["KOR_Sulphate_Water"] || [];
+    const GUIDE = DATA["KOR_Guide"] || [];
+
+    const state = { kr:"", member:"", exposure:"", q:"" };
+    const distinct = (arr)=> Array.from(new Set(arr)).filter(Boolean).sort();
+    const filterRows = (baseRows, opts)=>{
+      let rows = [...baseRows];
+      if (opts.kr) rows = rows.filter(r => String(r.KR_Class1) === opts.kr);
+      if (opts.member) rows = rows.filter(r => (r.Member || []).includes(opts.member));
+      if (opts.exposure) rows = rows.filter(r => String(r.KR_Exposure_Class) === opts.exposure);
+      if (opts.q) rows = rows.filter(r => Object.values(r).some(v => Array.isArray(v) ? v.join(',').toLowerCase().includes(opts.q) : String(v).toLowerCase().includes(opts.q)));
+      return rows;
+    };
+
+    // ---- Strength: UI builders ----
+    function renderKRPills(){
+      const wrap = document.getElementById('krPills');
+      if (!wrap) return;
+      const KR_LIST = distinct(MAIN.map(r=>r.KR_Class1));
+      wrap.innerHTML = '';
+      KR_LIST.forEach(v=>{
+        const el = document.createElement('button');
+        el.className = 'pill' + (state.kr === v ? ' active' : '');
+        el.textContent = v;
+        el.onclick = ()=>{ state.kr = (state.kr===v ? '' : v); state.member=''; state.exposure=''; renderMemberChips(); renderExoGrid(); apply(); renderKRPills(); };
+        wrap.appendChild(el);
+      });
+    }
+    function renderMemberChips(){
+      const wrap = document.getElementById('memberChips');
+      if (!wrap) return;
+      const rows = filterRows(MAIN, { kr:state.kr, exposure:state.exposure, q:'' });
+      const memberOptions = distinct([].concat(...rows.map(r=> r.Member || [])));
+      wrap.innerHTML = '';
+      memberOptions.forEach(v=>{
+        const el = document.createElement('span');
+        el.className = 'chip' + (state.member === v ? ' active' : '');
+        el.textContent = v;
+        el.onclick = ()=>{ state.member = (state.member===v ? '' : v); renderExoGrid(); apply(); renderMemberChips(); };
+        wrap.appendChild(el);
+      });
+      if (!memberOptions.length) wrap.innerHTML = '<span class="note">해당 Member 없음</span>';
+    }
+    function renderExoGrid(){
+      const wrap = document.getElementById('exogrid');
+      if (!wrap) return;
+      const rows = filterRows(MAIN, { kr:state.kr, member:state.member, q:'' });
+      const exos = distinct(rows.map(r=> r.KR_Exposure_Class));
+      wrap.innerHTML = '';
+      exos.forEach(v=>{
+        const el = document.createElement('div');
+        el.className = 'exo' + (state.exposure === v ? ' active' : '');
+        el.textContent = v;
+        el.onclick = ()=>{ state.exposure = (state.exposure===v ? '' : v); renderMemberChips(); apply(); renderExoGrid(); };
+        wrap.appendChild(el);
+      });
+      if (!exos.length) wrap.innerHTML = '<span class="note">해당 세부 등급 없음</span>';
+    }
+
+    function renderMainTable(rows){
+      const mount = document.getElementById('tableWrap');
+      if (!mount) return;
+      if (!rows.length){ mount.innerHTML = '<p class="note">표시할 데이터가 없습니다.</p>'; return; }
+      const columns = [
+        ['KR_Class1','노출등급'],
+        ['KR_Class2','등급 상세'],
+        ['KR_Exposure_Class','세부 등급'],
+        ['Min_Con_Str','최소 강도 (MPa)'],
+        ['Considertations','Considerations'],
+        ['Description','Description']
+      ];
+      let html = '<div style="overflow:auto; border:1px solid var(--border); border-radius:12px; max-height:420px;"><table><thead><tr>'
+                + columns.map(c=>`<th>${c[1]}</th>`).join('') + '</tr></thead><tbody>';
+      rows.forEach(r=>{
+        html += '<tr>';
+        columns.forEach(([k])=>{
+          const val = (Array.isArray(r[k])? r[k].join(', ') : (r[k] ?? ''));
+          const hl = (k==='Min_Con_Str') ? ' class="hl"' : '';
+          html += `<td${hl}>${val}</td>`;
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+      mount.innerHTML = html;
+    }
+
+    function renderGuideFiltered(){
+      const mount = document.getElementById('guideWrapFiltered');
+      if (!mount) return;
+      let grows = [...(GUIDE||[])];
+      if (state.member) grows = grows.filter(r => String(r['Member'] ?? '') === state.member);
+      if (state.exposure) grows = grows.filter(r => String(r['KR_Exposure_Class'] ?? '') === state.exposure);
+      else if (state.kr) {
+        const exoSet = new Set(filterRows(MAIN, { kr: state.kr, q: '' }).map(r => r.KR_Exposure_Class));
+        grows = grows.filter(r => exoSet.has(r['KR_Exposure_Class']));
+      }
+      if (!grows.length){ mount.innerHTML = '<p class="note">현재 선택에 해당하는 가이드 데이터가 없습니다.</p>'; return; }
+      const displayRows = grows.map(src=>{
+        const dst = { };
+        Object.keys(src).forEach(k=>{
+          if (k==='Key_E_Guide' || k==='Key_e_Guide') return; // drop
+          if (k==='KR_Exposure_Class') dst['세부등급'] = src[k];
+          else dst[k] = src[k];
+        });
+        return dst;
+      });
+      const keys = Object.keys(displayRows[0]);
+      let html = '<div style="overflow:auto; border:1px solid var(--border); border-radius:12px; max-height:320px;"><table><thead><tr>' + keys.map(k=>`<th>${k}</th>`).join('') + '</tr></thead><tbody>';
+      displayRows.forEach(r=>{ html += '<tr>'; keys.forEach(k=> html += `<td>${r[k] == null ? '' : r[k]}</td>`); html += '</tr>'; });
+      html += '</tbody></table></div>';
+      mount.innerHTML = html;
+    }
+
+    
+    // Simple table renderer for auxiliary tables
+    function renderSimple(rows, mountId){
+      const m = document.getElementById(mountId);
+      if (!m) return;
+      if (!rows || !rows.length){
+        m.innerHTML = '<p class="note">데이터 없음</p>';
+        return;
+      }
+      const keys = Object.keys(rows[0]);
+      let html = '<div style="overflow:auto; border:1px solid var(--border); border-radius:12px; max-height:320px;"><table><thead><tr>';
+      keys.forEach(k => html += `<th>${k}</th>`);
+      html += '</tr></thead><tbody>';
+      rows.forEach(r => { html += '<tr>'; keys.forEach(k => html += `<td>${r[k] == null ? '' : r[k]}</td>`); html += '</tr>'; });
+      html += '</tbody></table></div>';
+      m.innerHTML = html;
+    }
+
+    function apply(){
+      const q = (document.getElementById('searchBox')?.value || '').toLowerCase();
+      state.q = q;
+      const rows = filterRows(MAIN, state);
+      renderMainTable(rows);
+      renderGuideFiltered();
+      return rows;
+    }
+
+    // Toolbar & init
+    document.getElementById('searchBox')?.addEventListener('keyup', apply);
+    document.getElementById('resetBtn')?.addEventListener('click', ()=>{
+      state.kr=''; state.member=''; state.exposure='';
+      const sb = document.getElementById('searchBox'); if (sb) sb.value='';
+      renderKRPills(); renderMemberChips(); renderExoGrid(); apply();
+    });
+    document.getElementById('exportBtn')?.addEventListener('click', ()=>{
+      const rows = apply(); if (!rows.length) return;
+      const cols = Object.keys(rows[0]);
+      const header = cols.join(',');
+      const body = rows.map(r=> cols.map(c=>`"${String(Array.isArray(r[c])? r[c].join('; ') : (r[c] ?? '')).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const csv = header + '\n' + body;
+      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='filtered_min_strength.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    });
+
+    renderKRPills();
+    renderMemberChips();
+    renderExoGrid();
+    apply();
+    // render auxiliary tables
+    renderSimple(SOIL, 'soilWrap');
+    renderSimple(WATER, 'waterWrap');
+
+    // ---- Image/iframe modal ----
+    const modal = document.getElementById('imgModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalFrame = document.getElementById('modalFrame');
+    const modalCaption = document.getElementById('modalCaption');
+    document.getElementById('exposureThumbs')?.addEventListener('click', (e)=>{
+      const fig = e.target.closest('.thumb');
+      if (!fig) return;
+      const isIframe = fig.dataset.embed === 'iframe' || !!fig.querySelector('iframe');
+      modalImg.style.display = 'none';
+      modalFrame.style.display = 'none';
+      if (isIframe) {
+        const f = fig.querySelector('iframe'); if (!f) return;
+        modalFrame.src = f.src; modalFrame.style.display = 'block';
+      } else {
+        const img = fig.querySelector('img'); if (!img) return;
+        modalImg.src = img.src; modalImg.style.display = 'block';
+      }
+      modalCaption.textContent = fig.dataset.caption || '';
+      modal.classList.add('open');
+    });
+    document.getElementById('closeModal')?.addEventListener('click', ()=>{ modal.classList.remove('open'); modalImg.src=''; modalFrame.src=''; modalImg.style.display='none'; modalFrame.style.display='none'; });
+    modal.addEventListener('click', (e)=>{ if (e.target === modal) { modal.classList.remove('open'); modalImg.src=''; modalFrame.src=''; modalImg.style.display='none'; modalFrame.style.display='none'; } });
+  
+
+// ---------- Materials: table from page.tsx ----------
+const MATERIAL_REQUIREMENTS = [
+  {
+    category: "내구성 기준압축강도 fcd (MPa)",
+    E0: "21", EC1: "21", EC2: "24", EC3: "27", EC4: "30",
+    ES1: "30", ES2: "30", ES3: "35", ES4: "35",
+    EF1: "24", EF2: "27", EF3: "30", EF4: "30",
+    EA1: "27", EA2: "30", EA3: "30",
+  },
+  {
+    category: "최대 물-결합재비¹⁾",
+    E0: "–", EC1: "0.60", EC2: "0.55", EC3: "0.50", EC4: "0.45",
+    ES1: "0.45", ES2: "0.45", ES3: "0.40", ES4: "0.40",
+    EF1: "0.55", EF2: "0.50", EF3: "0.45", EF4: "0.45",
+    EA1: "0.50", EA2: "0.45", EA3: "0.45",
+  },
+  {
+    category: "최소 단위결합재량 (kg/m³)",
+    E0: "–", EC1: "–", EC2: "–", EC3: "–", EC4: "–",
+    ES1: "KCS 14 20 44의 표 2.2-1", ES1_colspan: 4, ES2: "", ES3: "", ES4: "",
+    EF1: "–", EF2: "–", EF3: "–", EF4: "–",
+    EA1: "–", EA2: "–", EA3: "–",
+  },
+  {
+    category: "최소 공기량(%)",
+    E0: "–", EC1: "–", EC2: "–", EC3: "–", EC4: "–",
+    ES1: "–", ES2: "–", ES3: "–", ES4: "–",
+    EF1: "KCS 14 20 10의 표 2.2-6", EF1_colspan: 4, EF2: "", EF3: "", EF4: "",
+    EA1: "–", EA2: "–", EA3: "–",
+  },
+  {
+    category: "수용성 염소 이온량 (결합재 중량비 %)",
+    subcategory: "  무근 콘크리트",
+    E0: "–", EC1: "–", EC2: "–", EC3: "–", EC4: "–",
+    ES1: "–", ES2: "–", ES3: "–", ES4: "–",
+    EF1: "–", EF2: "–", EF3: "–", EF4: "–",
+    EA1: "–", EA2: "–", EA3: "–",
+  },
+  {
+    category: "",
+    subcategory: "  철근 콘크리트",
+    E0: "1.00", EC1: "0.30", EC2: "0.30", EC3: "0.30", EC4: "0.30",
+    ES1: "0.15", ES2: "0.15", ES3: "0.15", ES4: "0.15",
+    EF1: "0.30", EF2: "0.30", EF3: "0.30", EF4: "0.30",
+    EA1: "0.30", EA2: "0.30", EA3: "0.30",
+  },
+  {
+    category: "",
+    subcategory: "  프리스트레스트 콘크리트",
+    E0: "0.06", EC1: "0.06", EC2: "0.06", EC3: "0.06", EC4: "0.06",
+    ES1: "0.06", ES2: "0.06", ES3: "0.06", ES4: "0.06",
+    EF1: "0.06", EF2: "0.06", EF3: "0.06", EF4: "0.06",
+    EA1: "0.06", EA2: "0.06", EA3: "0.06",
+  },
+  {
+    category: "추가 요구조건",
+    E0: "–", EC1: "–", EC2: "–", EC3: "–", EC4: "–",
+    ES1: "–", ES2: "–", ES3: "–", ES4: "–",
+    EF1: "KCS 14 20 10의 표 2.2-7", EF1_colspan: 4, EF2: "", EF3: "", EF4: "",
+    EA1: "KCS 14 20 10의 표 1.9-4", EA1_colspan: 3, EA2: "", EA3: "",
+  },
+];
+
+function renderMaterialsTable(){
+  const mount = document.getElementById('materialsWrap');
+  if (!mount) return;
+
+  // Build two-tier header
+  const groupHead = `
+    <tr>
+      <th rowspan="2" style="position:sticky; left:0; background:#f9fafb; min-width:220px;">항목</th>
+      <th style="background:#f3f4f6;">일반</th>
+      <th colspan="4" style="background:#e8f1ff; border-left:1px solid var(--border);">노출환경 및 등급</th>
+      <th colspan="4" style="background:#eaffe8; border-left:1px solid var(--border);">ES<br>(해양환경, 제설염 등 염화물)</th>
+      <th colspan="4" style="background:#fff8dc; border-left:1px solid var(--border);">EF<br>(동결융해)</th>
+      <th colspan="3" style="background:#ffecec; border-left:1px solid var(--border);">EA<br>(황산염)</th>
+    </tr>
+    <tr>
+      <th style="background:#f3f4f6;">E0</th>
+      <th style="background:#e8f1ff;">EC1</th>
+      <th style="background:#e8f1ff;">EC2</th>
+      <th style="background:#e8f1ff;">EC3</th>
+      <th style="background:#e8f1ff;">EC4</th>
+      <th style="background:#eaffe8;">ES1</th>
+      <th style="background:#eaffe8;">ES2</th>
+      <th style="background:#eaffe8;">ES3</th>
+      <th style="background:#eaffe8;">ES4</th>
+      <th style="background:#fff8dc;">EF1</th>
+      <th style="background:#fff8dc;">EF2</th>
+      <th style="background:#fff8dc;">EF3</th>
+      <th style="background:#fff8dc;">EF4</th>
+      <th style="background:#ffecec;">EA1</th>
+      <th style="background:#ffecec;">EA2</th>
+      <th style="background:#ffecec;">EA3</th>
+    </tr>`;
+
+  let html = '<div style="overflow:auto; border:1px solid var(--border); border-radius:12px;">' +
+             '<table><thead>' + groupHead + '</thead><tbody>';
+
+  MATERIAL_REQUIREMENTS.forEach(row => {
+    html += '<tr>';
+
+    // First column (sticky)
+    const cat = row.category || '';
+    const sub = row.subcategory ? `<div class="note" style="margin-top:2px;">${row.subcategory}</div>` : '';
+    html += `<td style="position:sticky; left:0; background:#fff; border-right:1px solid var(--border); font-weight:600;">${cat}${sub}</td>`;
+
+    // E0
+    html += `<td class="text-center" style="text-align:center;">${row.E0 ?? ''}</td>`;
+
+    // EC1..EC4
+    html += `<td style="text-align:center;">${row.EC1 ?? ''}</td>`;
+    html += `<td style="text-align:center;">${row.EC2 ?? ''}</td>`;
+    html += `<td style="text-align:center;">${row.EC3 ?? ''}</td>`;
+    html += `<td style="text-align:center;">${row.EC4 ?? ''}</td>`;
+
+    // ES1..ES4 with optional colspan from ES1_colspan
+    if (row.ES1_colspan) {
+      html += `<td colspan="${row.ES1_colspan}" style="text-align:center;">${row.ES1 ?? ''}</td>`;
+    } else {
+      html += `<td style="text-align:center;">${row.ES1 ?? ''}</td>`;
+      html += `<td style="text-align:center;">${row.ES2 ?? ''}</td>`;
+      html += `<td style="text-align:center;">${row.ES3 ?? ''}</td>`;
+      html += `<td style="text-align:center;">${row.ES4 ?? ''}</td>`;
+    }
+
+    // EF1..EF4 with optional colspan from EF1_colspan
+    if (row.EF1_colspan) {
+      html += `<td colspan="${row.EF1_colspan}" style="text-align:center;">${row.EF1 ?? ''}</td>`;
+    } else {
+      html += `<td style="text-align:center;">${row.EF1 ?? ''}</td>`;
+      html += `<td style="text-align:center;">${row.EF2 ?? ''}</td>`;
+      html += `<td style="text-align:center;">${row.EF3 ?? ''}</td>`;
+      html += `<td style="text-align:center;">${row.EF4 ?? ''}</td>`;
+    }
+
+    // EA1..EA3 with optional colspan from EA1_colspan
+    if (row.EA1_colspan) {
+      html += `<td colspan="${row.EA1_colspan}" style="text-align:center;">${row.EA1 ?? ''}</td>`;
+    } else {
+      html += `<td style="text-align:center;">${row.EA1 ?? ''}</td>`;
+      html += `<td style="text-align:center;">${row.EA2 ?? ''}</td>`;
+      html += `<td style="text-align:center;">${row.EA3 ?? ''}</td>`;
+    }
+
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  mount.innerHTML = html;
+}
+
+renderMaterialsTable();
+
+// ---- COVER PANEL (KDS_14_cover) ----
+const COVER_ROWS = [{"No.": "1", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "수중타설", "부재종류": "All_element", "철근/긴장재": "All_rebar", "최소피복 (mm)": "100"}, {"No.": "2", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "흙타설_거푸집없이", "부재종류": "All_element", "철근/긴장재": "All_rebar", "최소피복 (mm)": "75"}, {"No.": "3", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "All_element", "철근/긴장재": "D19이상", "최소피복 (mm)": "50"}, {"No.": "4", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "All_element", "철근/긴장재": "D16이하", "최소피복 (mm)": "40"}, {"No.": "5", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "슬래브", "철근/긴장재": "D35초과", "최소피복 (mm)": "40"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "벽체", "철근/긴장재": "D35초과", "최소피복 (mm)": "40"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "장선", "철근/긴장재": "D35초과", "최소피복 (mm)": "40"}, {"No.": "6", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "슬래브", "철근/긴장재": "D35이하", "최소피복 (mm)": "20"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "벽체", "철근/긴장재": "D35이하", "최소피복 (mm)": "20"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "장선", "철근/긴장재": "D35이하", "최소피복 (mm)": "20"}, {"No.": "7", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "보", "철근/긴장재": "All_rebar", "최소피복 (mm)": "40"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "기둥", "철근/긴장재": "All_rebar", "최소피복 (mm)": "40"}, {"No.": "8", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "쉘, 절판", "철근/긴장재": "All_rebar", "최소피복 (mm)": "20"}, {"No.": "9", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "흙타설_거푸집없이", "부재종류": "All_element", "철근/긴장재": "All_rebar", "최소피복 (mm)": "75"}, {"No.": "10", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "슬래브", "철근/긴장재": "All_rebar", "최소피복 (mm)": "30"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "벽체", "철근/긴장재": "All_rebar", "최소피복 (mm)": "30"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "장선", "철근/긴장재": "All_rebar", "최소피복 (mm)": "30"}, {"No.": "11", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "기타 부재", "철근/긴장재": "All_rebar", "최소피복 (mm)": "40"}, {"No.": "12", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "슬래브", "철근/긴장재": "All_rebar", "최소피복 (mm)": "20"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "벽체", "철근/긴장재": "All_rebar", "최소피복 (mm)": "20"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "장선", "철근/긴장재": "All_rebar", "최소피복 (mm)": "20"}, {"No.": "13", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "보", "철근/긴장재": "주철근", "최소피복 (mm)": "40"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "기둥", "철근/긴장재": "주철근", "최소피복 (mm)": "40"}, {"No.": "14", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "보", "철근/긴장재": "띠철근, 스터럽, 나선철근", "최소피복 (mm)": "30"}, {"No.": "", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "기둥", "철근/긴장재": "띠철근, 스터럽, 나선철근", "최소피복 (mm)": "30"}, {"No.": "15", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "쉘, 절판", "철근/긴장재": "D19이상", "최소피복 (mm)": "db"}, {"No.": "16", "생산 방법": "현장치기(In-situ Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "쉘, 절판", "철근/긴장재": "D16이하", "최소피복 (mm)": "10"}, {"No.": "17", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "벽체", "철근/긴장재": "D35초과", "최소피복 (mm)": "40"}, {"No.": "18", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "벽체", "철근/긴장재": "D35이하", "최소피복 (mm)": "20"}, {"No.": "19", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "PSC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "벽체", "철근/긴장재": "긴장재 40mm 초과", "최소피복 (mm)": "40"}, {"No.": "20", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "PSC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "벽체", "철근/긴장재": "긴장재 40mm 이하", "최소피복 (mm)": "20"}, {"No.": "21", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "기타 부재", "철근/긴장재": "D35초과", "최소피복 (mm)": "50"}, {"No.": "22", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "기타 부재", "철근/긴장재": "D35이하", "최소피복 (mm)": "40"}, {"No.": "23", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "PSC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "기타 부재", "철근/긴장재": "긴장재 40mm 초과", "최소피복 (mm)": "50"}, {"No.": "24", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "PSC", "현장 조건": "흙에 접하거나 옥외 공기에 노출", "부재종류": "기타 부재", "철근/긴장재": "긴장재 40mm 이하", "최소피복 (mm)": "40"}, {"No.": "25", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "슬래브, 벽체, 장선", "철근/긴장재": "D35초과", "최소피복 (mm)": "30"}, {"No.": "26", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "슬래브, 벽체, 장선", "철근/긴장재": "D35이하", "최소피복 (mm)": "20"}, {"No.": "27", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "슬래브, 벽체, 장선", "철근/긴장재": "긴장재 40mm 초과", "최소피복 (mm)": "30"}, {"No.": "28", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "슬래브, 벽체, 장선", "철근/긴장재": "긴장재 40mm 이하", "최소피복 (mm)": "20"}, {"No.": "29", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "보, 기둥", "철근/긴장재": "주철근", "최소피복 (mm)": "db"}, {"No.": "30", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "보, 기둥", "철근/긴장재": "띠철근, 스터럽, 나선철근", "최소피복 (mm)": "10"}, {"No.": "31", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "보, 기둥", "철근/긴장재": "주철근", "최소피복 (mm)": "db"}, {"No.": "32", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "보, 기둥", "철근/긴장재": "띠철근, 스터럽, 나선철근", "최소피복 (mm)": "10"}, {"No.": "33", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "PSC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "쉘, 절판", "철근/긴장재": "긴장재", "최소피복 (mm)": "20"}, {"No.": "34", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "쉘, 절판", "철근/긴장재": "D19이상", "최소피복 (mm)": "15"}, {"No.": "35", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "쉘, 절판", "철근/긴장재": "D32이상", "최소피복 (mm)": "db/2"}, {"No.": "36", "생산 방법": "프리캐스트(Precast Concrete)", "구조형식": "RC", "현장 조건": "옥외의 공기나 흙에 직접 접하지 않음", "부재종류": "쉘, 절판", "철근/긴장재": "D16이하", "최소피복 (mm)": "10"}];
+const COVER_META = {"No.": {"numeric": true, "unique": ["1", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "2", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "3", "30", "31", "32", "33", "34", "35", "36", "4", "5", "6", "7", "8", "9"]}, "생산 방법": {"numeric": false, "unique": ["프리캐스트(Precast Concrete)", "현장치기(In-situ Concrete)"]}, "구조형식": {"numeric": false, "unique": ["PSC", "RC"]}, "현장 조건": {"numeric": false, "unique": ["수중타설", "옥외의 공기나 흙에 직접 접하지 않음", "흙에 접하거나 옥외 공기에 노출", "흙타설_거푸집없이"]}, "부재종류": {"numeric": false, "unique": ["All_element", "기둥", "기타 부재", "벽체", "보", "보, 기둥", "쉘, 절판", "슬래브", "슬래브, 벽체, 장선", "장선"]}, "철근/긴장재": {"numeric": false, "unique": ["All_rebar", "D16이하", "D19이상", "D32이상", "D35이하", "D35초과", "긴장재", "긴장재 40mm 이하", "긴장재 40mm 초과", "띠철근, 스터럽, 나선철근", "주철근"]}, "최소피복 (mm)": {"numeric": true, "unique": ["10", "100", "15", "20", "30", "40", "50", "75", "db", "db/2"]}};
+const COVER_COLUMNS = Object.keys(COVER_META);
+const COVER_FILTER_KEYS = ["생산 방법", "구조형식", "현장 조건"];
+
+const COVER_STATE = { q:'', filters: {}, sortKey:null, sortDir:1, visible:[] };
+
+function coverBuildHeader() {
+  const head = document.getElementById('coverHead');
+  if (!head) return;
+  let html = '<tr>' + COVER_COLUMNS.map(c => `<th data-col="${c}">${c}</th>`).join('') + '</tr>';
+  head.innerHTML = html;
+  head.querySelectorAll('th').forEach(th => th.addEventListener('click', () => { 
+    const col = th.dataset.col;
+    if (COVER_STATE.sortKey === col) COVER_STATE.sortDir *= -1; else { COVER_STATE.sortKey = col; COVER_STATE.sortDir = 1; }
+    coverRender();
+  }));
+}
+
+function coverBuildFilters() {
+  const root = document.getElementById('coverFilters'); if (!root) return;
+  root.innerHTML = '';
+  COVER_STATE.filters = {};
+  COVER_FILTER_KEYS.forEach(col => {
+    const meta = COVER_META[col] || { unique:[] };
+    const div = document.createElement('div');
+    const label = document.createElement('label'); label.textContent = col; div.appendChild(label);
+    if (meta.unique && meta.unique.length && meta.unique.length <= 25) {
+      const sel = document.createElement('select'); sel.multiple = true; sel.size = Math.min(7, meta.unique.length+1);
+      const opt = document.createElement('option'); opt.value='__ALL__'; opt.textContent='전체'; sel.appendChild(opt);
+      meta.unique.forEach(v => { const o = document.createElement('option'); o.value=v; o.textContent = v || '(공백)'; sel.appendChild(o); });
+      sel.addEventListener('change', () => {
+        const values = Array.from(sel.selectedOptions).map(o => o.value);
+        if (values.includes('__ALL__') || values.length === 0) delete COVER_STATE.filters[col];
+        else COVER_STATE.filters[col] = { type:'in', values };
+        coverRenderChips(); coverRender();
+      });
+      div.appendChild(sel);
+    } else {
+      const inp = document.createElement('input'); inp.placeholder='포함 검색';
+      inp.addEventListener('input', ()=>{ const v=inp.value.trim(); if(!v) delete COVER_STATE.filters[col]; else COVER_STATE.filters[col]={type:'contains', q:v.toLowerCase()}; coverRenderChips(); coverRender(); });
+      div.appendChild(inp);
+    }
+    root.appendChild(div);
+  });
+}
+
+function coverRenderChips(){
+  const chips = document.getElementById('coverChips'); if (!chips) return;
+  chips.innerHTML = '';
+  Object.entries(COVER_STATE.filters).forEach(([col,rule]) => {
+    const span = document.createElement('span'); span.className='cover-chip';
+    let text = col + ': ';
+    if (rule.type==='in') text += rule.values.join(', ');
+    if (rule.type==='contains') text += '“' + rule.q + '” 포함';
+    span.textContent = text;
+    chips.appendChild(span);
+  });
+}
+
+function coverApplyFilters(rows){
+  let out = [...rows];
+  const q = COVER_STATE.q;
+  if (q) out = out.filter(r => COVER_COLUMNS.some(c => String(r[c] ?? '').toLowerCase().includes(q)));
+  for (const [col,rule] of Object.entries(COVER_STATE.filters)) {
+    out = out.filter(r => {
+      const val = String(r[col] ?? '');
+      if (rule.type==='contains') return val.toLowerCase().includes(rule.q);
+      if (rule.type==='in') return rule.values.includes(val);
+      return true;
+    });
+  }
+  return out;
+}
+
+function coverRender(){
+  let rows = coverApplyFilters(COVER_ROWS);
+  const cnt = document.getElementById('coverCount'); if (cnt) cnt.textContent = '행: ' + rows.length;
+  // sort
+  const k = COVER_STATE.sortKey;
+  if (k) {
+    rows.sort((a,b) => {
+      const av = a[k] ?? ''; const bv = b[k] ?? '';
+      const an = parseFloat(String(av).replace(/,/g,'')); const bn = parseFloat(String(bv).replace(/,/g,''));
+      if (!Number.isNaN(an) && !Number.isNaN(bn)) return (an - bn) * COVER_STATE.sortDir;
+      return String(av).localeCompare(String(bv), 'ko') * COVER_STATE.sortDir;
+    });
+  }
+  const body = document.getElementById('coverBody'); if (!body) return;
+  let html = '';
+  rows.forEach(r => {
+    html += '<tr>' + COVER_COLUMNS.map(c => `<td>${r[c] ?? ''}</td>`).join('') + '</tr>';
+  });
+  body.innerHTML = html;
+  COVER_STATE.visible = rows;
+}
+
+document.getElementById('coverSearch')?.addEventListener('input', (e)=>{ COVER_STATE.q = (e.target.value || '').toLowerCase(); coverRender(); });
+document.getElementById('coverReset')?.addEventListener('click', ()=>{ 
+  COVER_STATE.q=''; const sb=document.getElementById('coverSearch'); if(sb) sb.value='';
+  COVER_STATE.filters={}; coverBuildFilters(); coverRenderChips(); coverRender();
+});
+document.getElementById('coverExport')?.addEventListener('click', ()=>{
+  const rows = COVER_STATE.visible || []; if (!rows.length) return;
+  const cols = COVER_COLUMNS; const header = cols.join(',');
+  const body = rows.map(r => cols.map(c => `"$\{String(r[c] ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const csv = header + '\n' + body;
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='cover_filtered.csv';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+// Init cover
+coverBuildHeader();
+coverBuildFilters();
+coverRender();
+
+</script>
+</body>
+</html>
